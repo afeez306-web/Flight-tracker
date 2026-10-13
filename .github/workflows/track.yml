@@ -1,5 +1,5 @@
 yaml
-name: fare-tracker
+name: flight-tracker
 
 on:
   schedule:
