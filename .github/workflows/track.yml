@@ -1,0 +1,42 @@
+yaml
+name: fare-tracker
+
+on:
+  schedule:
+    - cron: "47 5,17 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fare-tracker
+  cancel-in-progress: false
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check fares
+        env:
+          IGNAV_API_KEY: ${{ secrets.IGNAV_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python tracker.py
+
+      - name: Save price history
+        if: always()
+        run: |
+          git config user.name "fare-tracker"
+          git config user.email "fare-tracker@users.noreply.github.com"
+          if [ -f fares.db ]; then
+            git add fares.db
+            git diff --cached --quiet || { git commit -m "price history $(date -u +%F-%H%M)" && git push; }
+          fi
