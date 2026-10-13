@@ -1,0 +1,39 @@
+# Edit these, then run `python tracker.py --plan` to see call counts and cost.
+#
+# Prices are in the market's currency (market "GB" = GBP where available).
+# Every route/date combination is one API call per run, so keep ranges tight.
+
+[settings]
+market = "GB"
+runs_per_day = 2          # must match the cron schedule in .github/workflows/track.yml
+drop_pct = 15             # also alert if a fare is this % below its recent low
+history_days = 30
+max_calls_per_run = 150   # safety cap — the run aborts if your watches exceed it
+max_rows_in_alert = 5
+
+# Round trip: give `nights` as [min, max]. Leave it out for one-way.
+[[watch]]
+name = "London to Lagos, December"
+origin = "LON"            # metro codes (LON = all London airports) or airport codes (LHR)
+destination = "LOS"
+depart_from = "2026-12-01"
+depart_to = "2026-12-20"
+depart_days = ["thu", "fri"]   # optional: only these weekdays
+nights = [7, 10]
+max_price = 550
+max_stops = 1             # optional: 0 = direct only
+adults = 1
+cabin_class = "economy"   # economy | premium_economy | business | first
+# Optional Ignav filters, passed through as-is:
+# min_checked_bags = 1
+# allow_self_transfer = false
+# airlines_exclude = ["XX"]
+# departure_time_range = { earliest_hour = 8, latest_hour = 22 }
+
+[[watch]]
+name = "Lagos to London, one way"
+origin = "LOS"
+destination = "LON"
+depart_from = "2027-01-05"
+depart_to = "2027-01-15"
+max_price = 300
